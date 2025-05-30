@@ -1,25 +1,25 @@
 
--- ======================================
--- 建立資料表：Vehicle
--- ======================================
+-- STEP 1: 建立資料表
+
+-- Vehicle 表：儲存車輛資料（含 uid 不設外鍵）
+DROP TABLE IF EXISTS Vehicle;
 CREATE TABLE Vehicle (
     plate_number NVARCHAR(10) PRIMARY KEY,
-    owner_name NVARCHAR(100),
-    contact_number NVARCHAR(20)
+    brand NVARCHAR(50),
+    color NVARCHAR(30),
+    uid NVARCHAR(20)
 );
 
--- ======================================
--- 建立資料表：ParkingSpot
--- ======================================
+-- ParkingSpot 表：停車格資訊
+DROP TABLE IF EXISTS ParkingSpot;
 CREATE TABLE ParkingSpot (
     spot_id INT IDENTITY(1,1) PRIMARY KEY,
     location NVARCHAR(50),
     is_available BIT DEFAULT 1
 );
 
--- ======================================
--- 建立資料表：ParkingRecord
--- ======================================
+-- ParkingRecord 表：車輛進出記錄
+DROP TABLE IF EXISTS ParkingRecord;
 CREATE TABLE ParkingRecord (
     record_id INT IDENTITY(1,1) PRIMARY KEY,
     plate_number NVARCHAR(10),
@@ -30,9 +30,8 @@ CREATE TABLE ParkingRecord (
     FOREIGN KEY (spot_id) REFERENCES ParkingSpot(spot_id)
 );
 
--- ======================================
--- 建立資料表：PaymentRecord
--- ======================================
+-- PaymentRecord 表：付款紀錄
+DROP TABLE IF EXISTS PaymentRecord;
 CREATE TABLE PaymentRecord (
     payment_id INT IDENTITY(1,1) PRIMARY KEY,
     record_id INT,
