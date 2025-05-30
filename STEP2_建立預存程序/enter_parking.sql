@@ -1,42 +1,32 @@
+
 CREATE PROCEDURE EnterParking
-    @uid NVARCHAR(20)
+    @plate_number NVARCHAR(10),
+    @spot_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @plate_number NVARCHAR(10);
-    DECLARE @spot_id INT;
-
-    -- 取得該 uid 的車牌（這裡只取第一台）
-    SELECT TOP 1 @plate_number = plate_number
-    FROM Vehicle
-    WHERE uid = @uid;
-
-    IF @plate_number IS NULL
+    -- 若車輛不存在，則插入預設品牌與顏色
+    IF NOT EXISTS (SELECT 1 FROM Vehicle WHERE plate_number = @plate_number)
     BEGIN
-        PRINT N'⛔ 查無該使用者車輛資訊，無法進場';
-        RETURN;
+        INSERT INTO Vehicle (plate_number, brand, color)
+        VALUES (@plate_number, N'Unknown', N'Unknown');
     END
 
-    -- 指派一個空車位（隨機取一個）
-    SELECT TOP 1 @spot_id = spot_id
-    FROM ParkingSpot
-    WHERE is_available = 1;
-
-    IF @spot_id IS NULL
+    -- 若該車位為可用，執行進場
+    IF EXISTS (SELECT 1 FROM ParkingSpot WHERE spot_id = @spot_id AND is_available = 1)
     BEGIN
-        PRINT N'⛔ 無可用車位，請稍後再試';
-        RETURN;
+        INSERT INTO ParkingRecord (entry_time, plate_number, spot_id)
+        VALUES (DATEADD(HOUR, -1, GETDATE()), @plate_number, @spot_id);
+
+        UPDATE ParkingSpot
+        SET is_available = 0
+        WHERE spot_id = @spot_id;
+
+        PRINT N'✅ 車輛進場成功，車位已標記為佔用';
     END
-
-    -- 寫入進場紀錄
-    INSERT INTO ParkingRecord (entry_time, plate_number, spot_id)
-    VALUES (DATEADD(HOUR, -1, GETDATE()), @plate_number, @spot_id);
-
-    -- 標記該車位為不可用
-    UPDATE ParkingSpot
-    SET is_available = 0
-    WHERE spot_id = @spot_id;
-
-    PRINT N'✅ 車輛進場成功';
+    ELSE
+    BEGIN
+        PRINT N'⛔ 該車位目前不可用';
+    END
 END;

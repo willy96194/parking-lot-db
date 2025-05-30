@@ -7,7 +7,6 @@ CREATE TABLE Vehicle (
     plate_number NVARCHAR(10) PRIMARY KEY,
     brand NVARCHAR(50),
     color NVARCHAR(30),
-    uid NVARCHAR(20)
 );
 
 -- ParkingSpot 表：停車格資訊
