@@ -39,3 +39,9 @@ CREATE TABLE PaymentRecord (
     method NVARCHAR(20),
     FOREIGN KEY (record_id) REFERENCES ParkingRecord(record_id)
 );
+
+CREATE TABLE DailyParkingReport (
+    report_date DATE PRIMARY KEY,       -- 統計的日期（每天一筆）
+    total_vehicles INT,                 -- 車輛進入次數
+    total_amount DECIMAL(10,2)          -- 收到的總停車費
+);
